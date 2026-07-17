@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { getDb } from '../db/database';
 import axios from 'axios';
 
 const extractVideoId = (url: string): string | null => {
@@ -59,7 +58,7 @@ export const startDownload = async (req: Request, res: Response) => {
       },
       {
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        validateStatus: () => true, // Don't throw on non-2xx so we can log it
+        validateStatus: () => true,
       }
     );
 
@@ -74,18 +73,6 @@ export const startDownload = async (req: Request, res: Response) => {
     res.json({ downloadUrl: cobaltRes.data.url });
   } catch (error: any) {
     console.error('Download Error full:', JSON.stringify(error?.response?.data || error?.message));
-    res.status(500).json({ error: 'Failed to process download.' });
-  }
-};
-
-    const data = cobaltRes.data;
-    if (data.status === 'error') {
-      return res.status(500).json({ error: 'Download service error: ' + data.error?.code });
-    }
-
-    res.json({ downloadUrl: data.url });
-  } catch (error) {
-    console.error('Download Error:', error);
     res.status(500).json({ error: 'Failed to process download.' });
   }
 };
