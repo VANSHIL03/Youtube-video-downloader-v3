@@ -31,16 +31,22 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
 
-  const handleDownload = (quality: string) => {
+   const handleDownload = async (quality: string) => {
     setDownloading(quality);
-    
-    // Construct the download URL
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-    const downloadUrl = new URL(`${apiUrl}/api/download`);
-    downloadUrl.searchParams.append('url', url);
-    downloadUrl.searchParams.append('quality', quality);
-    downloadUrl.searchParams.append('title', info.title);
-    downloadUrl.searchParams.append('thumbnail', info.thumbnail);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const params = new URLSearchParams({ url, quality, title: info.title });
+      const res = await fetch(`${apiUrl}/api/download?${params}`);
+      const data = await res.json();
+      if (data.downloadUrl) {
+        window.open(data.downloadUrl, '_blank');
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setDownloading(null);
+    }
+  };
     
     // Create an invisible iframe to trigger the download without leaving the page
     const iframe = document.createElement('iframe');
