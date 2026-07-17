@@ -7,14 +7,18 @@ const ffmpegPath = ffmpegInstaller.path;
 
 export const getVideoInfo = async (url: string) => {
   try {
-    const cookiesPath = path.join(__dirname, '../../cookies.txt');
-    const output = await ytDlp(url, {
+    const cookiesPath = path.join(process.cwd(), 'cookies.txt');
+    const options: any = {
       dumpJson: true,
       noWarnings: true,
       noCheckCertificate: true,
-      extractorArgs: 'youtube:player_client=android,web',
-      cookies: fs.existsSync(cookiesPath) ? cookiesPath : undefined,
-    } as any);
+    };
+    
+    if (fs.existsSync(cookiesPath)) {
+      options.cookies = cookiesPath;
+    }
+    
+    const output = await ytDlp(url, options);
     return output;
   } catch (error) {
     console.error('Error fetching video info:', error);
@@ -35,12 +39,11 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
 
     const outputTemplate = path.join(downloadsDir, `${outputUuid}.%(ext)s`);
 
-    const cookiesPath = path.join(__dirname, '../../cookies.txt');
+    const cookiesPath = path.join(process.cwd(), 'cookies.txt');
     const options: any = {
       f: formatStr,
       o: outputTemplate,
       ffmpegLocation: ffmpegPath,
-      extractorArgs: 'youtube:player_client=android,web',
     };
     
     if (fs.existsSync(cookiesPath)) {
