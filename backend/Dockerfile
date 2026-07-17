@@ -1,8 +1,8 @@
 # Use official Node.js image (Debian-based for better binary compatibility)
 FROM node:20-bookworm-slim
 
-# Install python, build tools, and ffmpeg
-RUN apt-get update && apt-get install -y python3 python-is-python3 ffmpeg make g++ && rm -rf /var/lib/apt/lists/*
+# Install python, build tools, ffmpeg and curl
+RUN apt-get update && apt-get install -y python3 python-is-python3 ffmpeg make g++ curl && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -11,8 +11,11 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 
-# Force SQLite to compile from source code to match the server's exact Linux version
+# Force SQLite to compile from source code
 RUN npm rebuild sqlite3 --build-from-source
+
+# *** CRITICAL: Replace the old bundled yt-dlp with the latest version ***
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/src/app/node_modules/yt-dlp-exec/bin/yt-dlp && chmod a+rx /usr/src/app/node_modules/yt-dlp-exec/bin/yt-dlp
 
 # Bundle app source
 COPY . .
