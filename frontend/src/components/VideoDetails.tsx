@@ -31,23 +31,18 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
 
-   const handleDownload = (quality: string) => {
+  const handleDownload = (quality: string) => {
     setDownloading(quality);
 
-    // Extract video ID
     const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
 
     if (quality === 'audio') {
-      // y2mate for MP3 downloads
       window.open(`https://www.y2mate.com/youtube-mp3/${videoId}`, '_blank');
     } else {
-      // ssyoutube - works by just replacing "youtube" with "ssyoutube" in the URL!
-      const ssUrl = url.replace('youtube.com', 'ssyoutube.com').replace('youtu.be', 'ssyoutube.com/watch?v=');
+      const ssUrl = url
+        .replace('youtube.com', 'ssyoutube.com')
+        .replace('youtu.be/', 'ssyoutube.com/watch?v=');
       window.open(ssUrl, '_blank');
-    }
-
-    setTimeout(() => setDownloading(null), 2000);
-  };
     }
 
     setTimeout(() => setDownloading(null), 2000);
@@ -65,7 +60,7 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
               {formatDuration(info.duration)}
             </div>
           </div>
-          
+
           <div className="flex flex-col gap-3 text-sm text-slate-300 bg-black/40 p-4 rounded-xl border border-white/5 shadow-inner">
             <div className="flex items-center gap-2"><User size={16} className="text-cyan-400" /> <span className="font-semibold text-white">{info.channel}</span></div>
             <div className="flex items-center gap-2"><Eye size={16} className="text-green-400" /> <span>{formatNumber(info.viewCount)} views</span></div>
@@ -94,9 +89,9 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
                   >
                     <span className="font-bold text-white tracking-wider">{q === 'best' ? 'Max Quality' : `${q}p`}</span>
                     {downloading === q ? (
-                       <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
                     ) : (
-                       <Download size={18} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+                      <Download size={18} className="text-cyan-400 group-hover:scale-110 transition-transform" />
                     )}
                   </button>
                 ))}
@@ -117,18 +112,18 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
                 >
                   <span className="font-bold text-white tracking-wider">High Quality MP3</span>
                   {downloading === 'audio' ? (
-                     <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-5 h-5 border-2 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
                   ) : (
-                     <Download size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
+                    <Download size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
                   )}
                 </button>
               </div>
             </div>
 
             {downloading && (
-               <div className="text-sm text-cyan-400 animate-pulse mt-4 bg-cyan-950/50 p-3 rounded-lg border border-cyan-500/20 text-center">
-                 Opening cobalt.tools to download your video. Please click the download button there!
-               </div>
+              <div className="text-sm text-cyan-400 animate-pulse mt-4 bg-cyan-950/50 p-3 rounded-lg border border-cyan-500/20 text-center">
+                Opening download page... Please select your quality and click download there!
+              </div>
             )}
           </div>
         </div>
