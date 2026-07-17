@@ -31,19 +31,23 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
 
-  const handleDownload = (quality: string) => {
+   const handleDownload = (quality: string) => {
     setDownloading(quality);
 
+    // Extract video ID
+    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+
     if (quality === 'audio') {
-      window.open(
-        `https://cobalt.tools/?u=${encodeURIComponent(url)}&f=mp3`,
-        '_blank'
-      );
+      // y2mate for MP3 downloads
+      window.open(`https://www.y2mate.com/youtube-mp3/${videoId}`, '_blank');
     } else {
-      window.open(
-        `https://cobalt.tools/?u=${encodeURIComponent(url)}`,
-        '_blank'
-      );
+      // ssyoutube - works by just replacing "youtube" with "ssyoutube" in the URL!
+      const ssUrl = url.replace('youtube.com', 'ssyoutube.com').replace('youtu.be', 'ssyoutube.com/watch?v=');
+      window.open(ssUrl, '_blank');
+    }
+
+    setTimeout(() => setDownloading(null), 2000);
+  };
     }
 
     setTimeout(() => setDownloading(null), 2000);
