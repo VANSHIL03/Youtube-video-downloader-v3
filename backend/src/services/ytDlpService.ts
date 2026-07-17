@@ -7,11 +7,13 @@ const ffmpegPath = ffmpegInstaller.path;
 
 export const getVideoInfo = async (url: string) => {
   try {
-       const output = await ytDlp(url, {
+    const cookiesPath = path.join(__dirname, '../../cookies.txt');
+    const output = await ytDlp(url, {
       dumpJson: true,
       noWarnings: true,
       noCheckCertificate: true,
       extractorArgs: 'youtube:player_client=android,web',
+      cookies: fs.existsSync(cookiesPath) ? cookiesPath : undefined,
     } as any);
     return output;
   } catch (error) {
@@ -31,21 +33,24 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
     const isAudio = quality === 'audio';
     const formatStr = isAudio ? 'bestaudio/best' : (quality !== 'best' ? `bestvideo[height<=${quality}]+bestaudio/best` : 'bestvideo+bestaudio/best');
 
-    // Use %(ext)s so yt-dlp chooses the correct extension (e.g. mkv, webm, mp4, mp3)
     const outputTemplate = path.join(downloadsDir, `${outputUuid}.%(ext)s`);
 
-        const options: any = {
+    const cookiesPath = path.join(__dirname, '../../cookies.txt');
+    const options: any = {
       f: formatStr,
       o: outputTemplate,
       ffmpegLocation: ffmpegPath,
       extractorArgs: 'youtube:player_client=android,web',
     };
+    
+    if (fs.existsSync(cookiesPath)) {
+      options.cookies = cookiesPath;
+    }
 
     if (isAudio) {
       options.extractAudio = true;
       options.audioFormat = 'mp3';
     } else {
-      // Force mkv container for merged video formats to avoid ffmpeg codec incompatibilities
       options.mergeOutputFormat = 'mkv';
     }
 
@@ -61,7 +66,6 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
 
     process.on('close', (code: number | null) => {
       if (code === 0) {
-        // Find the actual file generated
         const files = fs.readdirSync(downloadsDir);
         const generatedFile = files.find(f => f.startsWith(outputUuid));
         if (generatedFile) {
