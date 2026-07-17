@@ -31,21 +31,27 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
 
-   const handleDownload = async (quality: string) => {
+     const handleDownload = (quality: string) => {
     setDownloading(quality);
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const params = new URLSearchParams({ url, quality, title: info.title });
-      const res = await fetch(`${apiUrl}/api/download?${params}`);
-      const data = await res.json();
-      if (data.downloadUrl) {
-        window.open(data.downloadUrl, '_blank');
-      }
-    } catch (err) {
-      console.error('Download failed:', err);
-    } finally {
-      setDownloading(null);
+    
+    // Map quality to cobalt format
+    const cobaltQuality = quality === 'best' ? 'max' : quality === 'audio' ? 'audio' : quality;
+    
+    if (quality === 'audio') {
+      // For audio, open cobalt with audio mode
+      window.open(
+        `https://cobalt.tools/?u=${encodeURIComponent(url)}&f=mp3`,
+        '_blank'
+      );
+    } else {
+      // For video, open cobalt with URL pre-filled
+      window.open(
+        `https://cobalt.tools/?u=${encodeURIComponent(url)}`,
+        '_blank'
+      );
     }
+
+    setTimeout(() => setDownloading(null), 2000);
   };
     
     // Create an invisible iframe to trigger the download without leaving the page
