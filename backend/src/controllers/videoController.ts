@@ -43,7 +43,7 @@ export const analyzeVideo = async (req: Request, res: Response) => {
 
 export const startDownload = async (req: Request, res: Response) => {
   try {
-    const { url, quality, title } = req.query as { [key: string]: string };
+    const { url, quality } = req.query as { [key: string]: string };
     if (!url || !quality) return res.status(400).json({ error: 'URL and quality are required' });
 
     const isAudio = quality === 'audio';
@@ -55,10 +55,28 @@ export const startDownload = async (req: Request, res: Response) => {
         url,
         videoQuality: isAudio ? '720' : videoQuality,
         downloadMode: isAudio ? 'audio' : 'auto',
-        audioFormat: isAudio ? 'mp3' : 'best',
+        ...(isAudio ? { audioFormat: 'mp3' } : {}),
       },
-      { headers: { 'Content-Type': 'application/json', Accept: 'application/json' } }
+      {
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        validateStatus: () => true, // Don't throw on non-2xx so we can log it
+      }
     );
+
+    // Log FULL cobalt response so we can debug it
+    console.log('Cobalt status:', cobaltRes.status);
+    console.log('Cobalt response:', JSON.stringify(cobaltRes.data));
+
+    if (cobaltRes.data.status === 'error') {
+      return res.status(500).json({ error: 'Cobalt error: ' + JSON.stringify(cobaltRes.data.error) });
+    }
+
+    res.json({ downloadUrl: cobaltRes.data.url });
+  } catch (error: any) {
+    console.error('Download Error full:', JSON.stringify(error?.response?.data || error?.message));
+    res.status(500).json({ error: 'Failed to process download.' });
+  }
+};
 
     const data = cobaltRes.data;
     if (data.status === 'error') {
