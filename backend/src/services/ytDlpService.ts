@@ -7,10 +7,11 @@ const ffmpegPath = ffmpegInstaller.path;
 
 export const getVideoInfo = async (url: string) => {
   try {
-    const output = await ytDlp(url, {
+       const output = await ytDlp(url, {
       dumpJson: true,
       noWarnings: true,
       noCheckCertificate: true,
+      extractorArgs: 'youtube:player_client=android,web',
     } as any);
     return output;
   } catch (error) {
@@ -33,10 +34,11 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
     // Use %(ext)s so yt-dlp chooses the correct extension (e.g. mkv, webm, mp4, mp3)
     const outputTemplate = path.join(downloadsDir, `${outputUuid}.%(ext)s`);
 
-    const options: any = {
+        const options: any = {
       f: formatStr,
       o: outputTemplate,
       ffmpegLocation: ffmpegPath,
+      extractorArgs: 'youtube:player_client=android,web',
     };
 
     if (isAudio) {
