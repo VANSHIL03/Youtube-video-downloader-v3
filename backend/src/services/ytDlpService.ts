@@ -57,17 +57,17 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
       options.mergeOutputFormat = 'mkv';
     }
 
-    const process = exec(url, options);
+    const ytProcess = exec(url, options);
 
     let stderrOutput = '';
-    if (process.stderr) {
-      process.stderr.on('data', (data: any) => {
+    if (ytProcess.stderr) {
+      ytProcess.stderr.on('data', (data: any) => {
         stderrOutput += data.toString();
         console.error('yt-dlp stderr:', data.toString());
       });
     }
 
-    process.on('close', (code: number | null) => {
+    ytProcess.on('close', (code: number | null) => {
       if (code === 0) {
         const files = fs.readdirSync(downloadsDir);
         const generatedFile = files.find(f => f.startsWith(outputUuid));
@@ -84,7 +84,7 @@ export const downloadVideo = (url: string, quality: string, outputUuid: string):
       }
     });
 
-    process.on('error', (err: any) => {
+    ytProcess.on('error', (err: any) => {
       reject(err);
     });
   });
