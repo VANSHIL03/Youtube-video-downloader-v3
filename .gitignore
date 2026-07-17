@@ -1,0 +1,19 @@
+# Dependencies
+**/node_modules/
+
+# Build output
+**/dist/
+**/build/
+
+# Downloaded videos
+backend/downloads/
+
+# Database
+*.sqlite
+
+# Environment files
+.env
+.env.*
+
+# Logs
+*.log
