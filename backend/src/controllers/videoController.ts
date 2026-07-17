@@ -57,22 +57,25 @@ export const startDownload = async (req: Request, res: Response) => {
         ...(isAudio ? { audioFormat: 'mp3' } : {}),
       },
       {
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          Authorization: `Api-Key ${process.env.COBALT_API_KEY}`,
+        },
         validateStatus: () => true,
       }
     );
 
-    // Log FULL cobalt response so we can debug it
     console.log('Cobalt status:', cobaltRes.status);
     console.log('Cobalt response:', JSON.stringify(cobaltRes.data));
 
     if (cobaltRes.data.status === 'error') {
-      return res.status(500).json({ error: 'Cobalt error: ' + JSON.stringify(cobaltRes.data.error) });
+      return res.status(500).json({ error: 'Download failed: ' + JSON.stringify(cobaltRes.data.error) });
     }
 
     res.json({ downloadUrl: cobaltRes.data.url });
   } catch (error: any) {
-    console.error('Download Error full:', JSON.stringify(error?.response?.data || error?.message));
+    console.error('Download Error:', JSON.stringify(error?.response?.data || error?.message));
     res.status(500).json({ error: 'Failed to process download.' });
   }
 };
