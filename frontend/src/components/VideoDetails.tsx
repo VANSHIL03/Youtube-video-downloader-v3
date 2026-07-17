@@ -31,20 +31,15 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     return new Intl.NumberFormat('en-US', { notation: 'compact' }).format(num);
   };
 
-     const handleDownload = (quality: string) => {
+  const handleDownload = (quality: string) => {
     setDownloading(quality);
-    
-    // Map quality to cobalt format
-    const cobaltQuality = quality === 'best' ? 'max' : quality === 'audio' ? 'audio' : quality;
-    
+
     if (quality === 'audio') {
-      // For audio, open cobalt with audio mode
       window.open(
         `https://cobalt.tools/?u=${encodeURIComponent(url)}&f=mp3`,
         '_blank'
       );
     } else {
-      // For video, open cobalt with URL pre-filled
       window.open(
         `https://cobalt.tools/?u=${encodeURIComponent(url)}`,
         '_blank'
@@ -52,21 +47,6 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
     }
 
     setTimeout(() => setDownloading(null), 2000);
-  };
-    
-    // Create an invisible iframe to trigger the download without leaving the page
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = downloadUrl.toString();
-    document.body.appendChild(iframe);
-    
-    // We do NOT remove the iframe immediately because doing so cancels the browser's HTTP request!
-    // The backend yt-dlp process takes 10-60 seconds depending on quality.
-    
-    // Keep the UI spinning for 15 seconds to indicate that the server is processing the video.
-    setTimeout(() => {
-      setDownloading(null);
-    }, 15000);
   };
 
   const qualities = ['360', '720', '1080', '1440', '2160', 'best'];
@@ -140,10 +120,10 @@ export default function VideoDetails({ info, url }: { info: VideoInfo, url: stri
                 </button>
               </div>
             </div>
-            
+
             {downloading && (
                <div className="text-sm text-cyan-400 animate-pulse mt-4 bg-cyan-950/50 p-3 rounded-lg border border-cyan-500/20 text-center">
-                 Your download is being processed on the server and will begin shortly! High quality videos (1080p+) take longer because the audio and video must be merged.
+                 Opening cobalt.tools to download your video. Please click the download button there!
                </div>
             )}
           </div>
